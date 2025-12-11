@@ -1,0 +1,17 @@
+com\customersaas\workbench\repository\UploadJobRepository.class
+com\customersaas\workbench\controller\InteractionController.class
+com\customersaas\workbench\CustomerWorkbenchApplication.class
+com\customersaas\workbench\entity\UploadJob.class
+com\customersaas\workbench\entity\CustomerInteraction.class
+com\customersaas\workbench\dto\SearchResultDTO$SearchResultDTOBuilder.class
+com\customersaas\workbench\service\FileUploadService.class
+com\customersaas\workbench\entity\UploadJob$UploadJobBuilder.class
+com\customersaas\workbench\dto\CustomerInteractionDTO.class
+com\customersaas\workbench\dto\UploadResponseDTO$UploadResponseDTOBuilder.class
+com\customersaas\workbench\controller\UploadController.class
+com\customersaas\workbench\repository\CustomerInteractionRepository.class
+com\customersaas\workbench\dto\SearchResultDTO.class
+com\customersaas\workbench\dto\UploadResponseDTO.class
+com\customersaas\workbench\dto\CustomerInteractionDTO$CustomerInteractionDTOBuilder.class
+com\customersaas\workbench\service\CustomerInteractionService.class
+com\customersaas\workbench\entity\CustomerInteraction$CustomerInteractionBuilder.class
