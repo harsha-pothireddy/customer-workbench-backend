@@ -64,7 +64,7 @@ class CustomerInteractionServiceTest {
         Page<CustomerInteraction> page = new PageImpl<>(interactions, PageRequest.of(0, 10), 1);
 
         when(repository.searchInteractions(
-            anyString(), anyString(), any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)
+            anyString(), anyString(), nullable(LocalDateTime.class), nullable(LocalDateTime.class), any(Pageable.class)
         )).thenReturn(page);
 
         var result = service.search("CUST-001", "email", null, null, PageRequest.of(0, 10));

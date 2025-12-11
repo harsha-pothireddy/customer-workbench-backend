@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/api/interactions")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001", "http://localhost:5173"})
 public class InteractionController {
 
     private final CustomerInteractionService interactionService;

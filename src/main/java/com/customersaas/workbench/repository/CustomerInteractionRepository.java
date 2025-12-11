@@ -20,10 +20,10 @@ public interface CustomerInteractionRepository extends JpaRepository<CustomerInt
     Page<CustomerInteraction> findByTimestampBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     @Query("SELECT ci FROM CustomerInteraction ci WHERE " +
-           "(:customerId IS NULL OR ci.customerId = :customerId) AND " +
-           "(:interactionType IS NULL OR ci.interactionType = :interactionType) AND " +
-           "(:startDate IS NULL OR ci.timestamp >= :startDate) AND " +
-           "(:endDate IS NULL OR ci.timestamp <= :endDate)")
+        "(cast(:customerId as text) IS NULL OR ci.customerId = :customerId) AND " +
+        "(cast(:interactionType as text) IS NULL OR ci.interactionType = :interactionType) AND " +
+        "(cast(:startDate as timestamp) IS NULL OR ci.timestamp >= :startDate) AND " +
+        "(cast(:endDate as timestamp) IS NULL OR ci.timestamp <= :endDate)")
     Page<CustomerInteraction> searchInteractions(
         @Param("customerId") String customerId,
         @Param("interactionType") String interactionType,
