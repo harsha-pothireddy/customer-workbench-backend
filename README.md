@@ -7,7 +7,7 @@ Backend application for the Customer Insights Workbench, built with Spring Boot 
 ### Technology Stack
 - **Framework**: Spring Boot 3.2.1
 - **Language**: Java 17
-- **Database**: H2 (development) / PostgreSQL (production)
+- **Database**: PostgreSQL 16
 - **Build Tool**: Maven
 - **ORM**: Hibernate (JPA)
 - **Migration**: Flyway
@@ -56,6 +56,44 @@ Two main tables:
 ### Prerequisites
 - Java 17 or higher
 - Maven 3.8+
+- Docker and Docker Compose (for running PostgreSQL locally)
+
+### Database Setup
+
+#### Start PostgreSQL with Docker
+The application uses PostgreSQL as its database. Start a local PostgreSQL instance using Docker Compose:
+
+```bash
+docker-compose up -d
+```
+
+This will:
+- Start PostgreSQL 16 on port 5432
+- Create a database named `customer_workbench`
+- Set up a persistent volume for data storage
+- Default credentials: `postgres` / `your_password_here`
+
+To stop the database:
+```bash
+docker-compose down
+```
+
+To stop and remove all data:
+```bash
+docker-compose down -v
+```
+
+#### Database Configuration
+The application connects to PostgreSQL using the following default settings (configured in `application.properties`):
+- **URL**: `jdbc:postgresql://localhost:5432/customer_workbench`
+- **Username**: `postgres`
+- **Password**: `your_password_here`
+- **Schema**: Automatically created via Flyway migrations on startup
+
+To change these settings, update `src/main/resources/application.properties` or set environment variables:
+- `SPRING_DATASOURCE_URL`
+- `SPRING_DATASOURCE_USERNAME`
+- `SPRING_DATASOURCE_PASSWORD`
 
 ### Build
 ```bash
@@ -68,14 +106,6 @@ mvn spring-boot:run
 ```
 
 The server will start on `http://localhost:8080`
-
-### Database
-The application uses H2 in-memory database by default for development. The schema is automatically created via Flyway migrations on startup.
-
-Access H2 console: `http://localhost:8080/h2-console`
-- JDBC URL: `jdbc:h2:mem:testdb`
-- Username: `sa`
-- Password: (empty)
 
 ## API Endpoints
 
@@ -187,13 +217,14 @@ mvn test -Dtest=*IntegrationTest
 The project includes:
 - Unit tests for `CustomerInteractionService`
 - Integration tests covering full upload and retrieval workflows
+- Tests use Testcontainers to spin up PostgreSQL instances automatically (no manual database setup required)
 
 ## Configuration
 
 ### Environment Variables
-- `DATABASE_URL` - Database connection URL (defaults to H2)
-- `DATABASE_USER` - Database username
-- `DATABASE_PASSWORD` - Database password
+- `SPRING_DATASOURCE_URL` - Database connection URL (default: `jdbc:postgresql://localhost:5432/customer_workbench`)
+- `SPRING_DATASOURCE_USERNAME` - Database username (default: `postgres`)
+- `SPRING_DATASOURCE_PASSWORD` - Database password (default: `your_password_here`)
 - `SERVER_PORT` - Server port (default: 8080)
 
 ### CORS Configuration
@@ -228,12 +259,18 @@ Modify `application.yml` to add additional origins.
 ## Deployment
 
 ### Production Setup
-Replace H2 with PostgreSQL:
-1. Update `application.yml` with PostgreSQL connection details
-2. Add PostgreSQL driver to `pom.xml`
+For production deployment:
+1. Set up a managed PostgreSQL instance (AWS RDS, Azure Database, etc.)
+2. Update environment variables with production database credentials:
+   - `SPRING_DATASOURCE_URL`
+   - `SPRING_DATASOURCE_USERNAME`
+   - `SPRING_DATASOURCE_PASSWORD`
 3. Flyway migrations will run automatically on startup
 
-### Docker
+### Docker Deployment
+
+#### Application Container
+Create a `Dockerfile` for the application:
 ```dockerfile
 FROM openjdk:17-slim
 COPY target/customer-workbench-backend-1.0.0.jar app.jar
@@ -242,8 +279,33 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 Build and run:
 ```bash
+mvn clean package
 docker build -t customer-workbench-backend .
-docker run -p 8080:8080 customer-workbench-backend
+docker run -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/customer_workbench \
+  -e SPRING_DATASOURCE_USERNAME=postgres \
+  -e SPRING_DATASOURCE_PASSWORD=your_password_here \
+  customer-workbench-backend
+```
+
+#### Full Stack with Docker Compose
+The included `docker-compose.yml` can be extended to run both the application and database:
+```yaml
+services:
+  postgres:
+    # ... existing postgres configuration ...
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/customer_workbench
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: your_password_here
+    depends_on:
+      postgres:
+        condition: service_healthy
 ```
 
 ## Future Enhancements
